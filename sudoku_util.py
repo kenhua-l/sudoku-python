@@ -84,6 +84,25 @@ def has_certain_possibilities(possible_dict):
                 return True
     return False
 
+def puzzle_is_solved(puzzle):
+    if '0' in puzzle.solving_frame:
+        return False
+    else:
+        for x in range(9):
+            row_ = puzzle.get_row_numbers(x)
+            if find_missing(row_):
+                return False
+        for y in range(9):
+            col_ = puzzle.get_col_numbers(y)
+            if find_missing(col_):
+                return False
+        for o in range(9):
+            sq_ = puzzle.get_sq_numbers(o)
+            if find_missing(sq_):
+                return False
+        print('SUDOKU SOLVED')
+        return True
+
 def main():
     # testing
     # example = "093001600600000079470690000360000700700502001002000043000026037130000006006300150"

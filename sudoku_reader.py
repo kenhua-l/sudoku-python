@@ -3,20 +3,20 @@ from sudoku_util import SudokuPuzzle
 from time import sleep
 
 def main():
-	example = "093001600600000079470690000360000700700502001002000043000026037130000006006300150"
+	# example = "093001600600000079470690000360000700700502001002000043000026037130000006006300150"
 	# example = "403072860701580300200106500000050410000000000037060000002807003004015207075620108"
+	example = "006500100500002938090700506000270060005306700070095000308007050152600007009008200"
 	puzzle = convert_to_puzzle(example)
 
 	print_sudoku(puzzle.solving_frame)
 
 	ite = 10
 	while(sudoku_util.has_certain_possibilities(puzzle.possibilities) and ite > 0):
-		sleep(1)
-		print(ite)
 		puzzle.fill_up_certain_ones()
-		print_sudoku(puzzle.solving_frame)
 		ite = ite - 1
 
+	if sudoku_util.puzzle_is_solved(puzzle):
+		print_sudoku(puzzle.solving_frame)
 
 def convert_to_puzzle(data):
 	return SudokuPuzzle(data)
