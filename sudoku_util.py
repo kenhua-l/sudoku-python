@@ -4,18 +4,24 @@ WIDTH = 3
 SQUARE = 9
 NUMBERSET = {1,2,3,4,5,6,7,8,9}
 
+class Flags:
+    def __init__(self):
+        self.HAS_CERTAIN_POSSIBILITIES = False
+        self.CERTAIN_POSSIBILITIES_LIST = []
+
 class SudokuPuzzle:
 	# in grid form where x is row, y is col
-	# column dictionary in row where column has list data
+	# column dictionary in row where column has set data
 	# eg.
 	# {
 	# 	0 : {
-	# 			0 : [1,2,3,4,5]
+	# 			0 : {1,2,3,4,5}
 	# 		}
 	# }
     def __init__(self, data):
         self.main_frame = data
         self.solving_frame = data
+        self.solving_flags = Flags()
         self.possibilities = self.set_possibilities(self.main_frame)
 
     # SETUP
@@ -39,6 +45,8 @@ class SudokuPuzzle:
 
     def set_possibilities(self, data):
         possibilities = defaultdict(dict)
+        self.solving_flags.HAS_CERTAIN_POSSIBILITIES = False
+        self.solving_flags.CERTAIN_POSSIBILITIES_LIST.clear()
         for x in range(SQUARE):
             for y in range(SQUARE):
                 if data[x * SQUARE + y] == '0':
@@ -46,17 +54,17 @@ class SudokuPuzzle:
                     r,c,s = self.get_row_numbers(r), self.get_col_numbers(c), self.get_sq_numbers(s)
                     r,c,s = find_missing(r), find_missing(c), find_missing(s)
                     possibilities[x][y] = intersect_sets(r, c, s)
+                    if len(possibilities[x][y]) == 1:
+                        self.solving_flags.HAS_CERTAIN_POSSIBILITIES = True
+                        self.solving_flags.CERTAIN_POSSIBILITIES_LIST.append((x,y))
         return possibilities
 
     # SOLVE
     def fill_up_certain_ones(self):
         temp = self.solving_frame
-        for x, set_ in self.possibilities.items():
-            # delete = [y for (y, val) in set_.items() if len(val) == 1]
-            for y, val in set_.items():
-                if len(val) == 1:
-                    temp = temp[:x * SQUARE + y] + str(val.pop()) + temp[x * SQUARE + y + 1:]
-            # for y in delete: del set_[y]
+        for x,y in self.solving_flags.CERTAIN_POSSIBILITIES_LIST:
+            val = str(self.possibilities[x][y].pop())
+            temp = temp[:x * SQUARE + y] + val + temp[x * SQUARE + y + 1:]
         self.solving_frame = temp
         self.possibilities = self.set_possibilities(self.solving_frame)
 
@@ -77,13 +85,10 @@ def intersect_sets(horizontal_set, vertical_set, square_set):
     return subset
 
 # SOLVE
-def has_certain_possibilities(possible_dict):
-    for x, set_ in possible_dict.items():
-        for y, val in set_.items():
-            if len(val) == 1:
-                return True
-    return False
+def has_certain_possibilities(puzzle):
+    return puzzle.solving_flags.HAS_CERTAIN_POSSIBILITIES
 
+# CHECK
 def puzzle_is_solved(puzzle):
     if '0' in puzzle.solving_frame:
         return False

@@ -11,7 +11,7 @@ def main():
 	print_sudoku(puzzle.solving_frame)
 
 	ite = 10
-	while(sudoku_util.has_certain_possibilities(puzzle.possibilities) and ite > 0):
+	while(sudoku_util.has_certain_possibilities(puzzle) and ite > 0):
 		puzzle.fill_up_certain_ones()
 		ite = ite - 1
 
