@@ -68,6 +68,18 @@ class SudokuPuzzle:
         self.solving_frame = temp
         self.possibilities = self.set_possibilities(self.solving_frame)
 
+    def fill_up_certain_in_rows(self):
+        temp = self.solving_frame
+        for x, row_ in self.possibilities.items():
+            for y, cell_ in row_.items():
+                row_set = [v for k,v in row_.items() if k is not y]
+                row_set = set.union(*row_set)
+                row_set = cell_.difference(row_set)
+                if len(row_set) == 1:
+                    val = row_set.pop()
+                    temp = temp[:x * SQUARE + y] + str(val) + temp[x * SQUARE + y + 1:]
+        self.solving_frame = temp
+
 def get_cell_location(ordinal):
     # assume this is 9 x 9 sudoku
     # ordinal in terms of main_frame order
