@@ -8,6 +8,8 @@ class Flags:
     def __init__(self):
         self.HAS_CERTAIN_POSSIBILITIES = False
         self.CERTAIN_POSSIBILITIES_LIST = []
+        self.HAS_CERTAIN_ROW = False
+        self.CERTAIN_ROW_LIST = []
 
 class SudokuPuzzle:
 	# in grid form where x is row, y is col
@@ -45,8 +47,6 @@ class SudokuPuzzle:
 
     def set_possibilities(self, data):
         possibilities = defaultdict(dict)
-        self.solving_flags.HAS_CERTAIN_POSSIBILITIES = False
-        self.solving_flags.CERTAIN_POSSIBILITIES_LIST.clear()
         for x in range(SQUARE):
             for y in range(SQUARE):
                 if data[x * SQUARE + y] == '0':
@@ -59,12 +59,25 @@ class SudokuPuzzle:
                         self.solving_flags.CERTAIN_POSSIBILITIES_LIST.append((x,y))
         return possibilities
 
+    # CHECK
+    def find_certain_row(self):
+        for x, row_ in self.possibilities.items():
+            for y, cell_ in row_.items():
+                row_set = [v for k,v in row_.items() if k is not y]
+                row_set = set.union(*row_set)
+                row_set = cell_.difference(row_set)
+                if len(row_set) == 1:
+                    self.HAS_CERTAIN_ROW = True
+                    self.CERTAIN_ROW_LIST.append(x, y, row_set.pop())
+
     # SOLVE
     def fill_up_certain_ones(self):
         temp = self.solving_frame
         for x,y in self.solving_flags.CERTAIN_POSSIBILITIES_LIST:
             val = str(self.possibilities[x][y].pop())
             temp = temp[:x * SQUARE + y] + val + temp[x * SQUARE + y + 1:]
+        self.solving_flags.HAS_CERTAIN_POSSIBILITIES = False
+        self.solving_flags.CERTAIN_POSSIBILITIES_LIST.clear()
         self.solving_frame = temp
         self.possibilities = self.set_possibilities(self.solving_frame)
 
@@ -79,6 +92,8 @@ class SudokuPuzzle:
                     val = row_set.pop()
                     temp = temp[:x * SQUARE + y] + str(val) + temp[x * SQUARE + y + 1:]
         self.solving_frame = temp
+        self.possibilities = self.set_possibilities(self.solving_frame)
+
 
 def get_cell_location(ordinal):
     # assume this is 9 x 9 sudoku
