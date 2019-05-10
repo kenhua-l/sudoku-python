@@ -45,6 +45,39 @@ class SudokuPuzzle:
         sq_.discard(0)
         return sq_
 
+    # CHECK
+    def find_certain_row(self, possibility):
+        row_list = []
+        for x, row_ in possibility.items():
+            for y, cell_ in row_.items():
+                if not (x,y) in self.solving_flags.CERTAIN_POSSIBILITIES_LIST:
+                    row_set = [v for k,v in row_.items() if k is not y]
+                    row_set = set.union(*row_set)
+                    row_set = cell_.difference(row_set)
+                    if len(row_set) == 1:
+                        possibility[x][y] = row_set
+                        self.solving_flags.HAS_CERTAIN_POSSIBILITIES = True
+                        row_list.append((x,y))
+        self.solving_flags.CERTAIN_POSSIBILITIES_LIST = self.solving_flags.CERTAIN_POSSIBILITIES_LIST + row_list
+        return possibility
+
+    def find_certain_col(self, possibility):
+        col_list = []
+        for i in range(SQUARE):
+            has_col = [x for x, row_ in possibility.items() if i in row_.keys()]
+            for row_number in has_col:
+                if not (row_number,i) in self.solving_flags.CERTAIN_POSSIBILITIES_LIST:
+                    cell_ = possibility[row_number][i]
+                    col_set = [possibility[x][i] for x in has_col if x is not row_number]
+                    col_set = set.union(*col_set)
+                    col_set = cell_.difference(col_set)
+                    if len(col_set) == 1:
+                        possibility[row_number][i] = col_set
+                        self.solving_flags.HAS_CERTAIN_POSSIBILITIES = True
+                        col_list.append((row_number,i))
+        self.solving_flags.CERTAIN_POSSIBILITIES_LIST = self.solving_flags.CERTAIN_POSSIBILITIES_LIST + col_list
+        return possibility
+
     def set_possibilities(self, data):
         possibilities = defaultdict(dict)
         for x in range(SQUARE):
@@ -57,18 +90,9 @@ class SudokuPuzzle:
                     if len(possibilities[x][y]) == 1:
                         self.solving_flags.HAS_CERTAIN_POSSIBILITIES = True
                         self.solving_flags.CERTAIN_POSSIBILITIES_LIST.append((x,y))
+        possibilities = self.find_certain_row(possibilities)
+        possibilities = self.find_certain_col(possibilities)
         return possibilities
-
-    # CHECK
-    def find_certain_row(self):
-        for x, row_ in self.possibilities.items():
-            for y, cell_ in row_.items():
-                row_set = [v for k,v in row_.items() if k is not y]
-                row_set = set.union(*row_set)
-                row_set = cell_.difference(row_set)
-                if len(row_set) == 1:
-                    self.HAS_CERTAIN_ROW = True
-                    self.CERTAIN_ROW_LIST.append(x, y, row_set.pop())
 
     # SOLVE
     def fill_up_certain_ones(self):
@@ -80,20 +104,6 @@ class SudokuPuzzle:
         self.solving_flags.CERTAIN_POSSIBILITIES_LIST.clear()
         self.solving_frame = temp
         self.possibilities = self.set_possibilities(self.solving_frame)
-
-    def fill_up_certain_in_rows(self):
-        temp = self.solving_frame
-        for x, row_ in self.possibilities.items():
-            for y, cell_ in row_.items():
-                row_set = [v for k,v in row_.items() if k is not y]
-                row_set = set.union(*row_set)
-                row_set = cell_.difference(row_set)
-                if len(row_set) == 1:
-                    val = row_set.pop()
-                    temp = temp[:x * SQUARE + y] + str(val) + temp[x * SQUARE + y + 1:]
-        self.solving_frame = temp
-        self.possibilities = self.set_possibilities(self.solving_frame)
-
 
 def get_cell_location(ordinal):
     # assume this is 9 x 9 sudoku
