@@ -78,6 +78,29 @@ class SudokuPuzzle:
         self.solving_flags.CERTAIN_POSSIBILITIES_LIST = self.solving_flags.CERTAIN_POSSIBILITIES_LIST + col_list
         return possibility
 
+    def find_certain_sq(self, possibility): # O(9x3x3)
+        sq_list = []
+        square_solver = defaultdict(dict)
+        for i in range(SQUARE):
+            row_number = int(i / WIDTH) * WIDTH
+            col_number = int(i * WIDTH % SQUARE)
+            for x in range(WIDTH):
+                if (row_number+x) in possibility.keys():
+                    for y in range(WIDTH):
+                        if (col_number+y) in possibility[row_number+x].keys():
+                            square_solver[i][(row_number+x, col_number+y)] = possibility[row_number+x][col_number+y]
+            for loc_, cell_ in square_solver[i].items():
+                if not (loc_) in self.solving_flags.CERTAIN_POSSIBILITIES_LIST:
+                    sq_set = [val_ for k, val_ in square_solver[i].items() if k is not loc_]
+                    sq_set = set.union(*sq_set)
+                    sq_set = cell_.difference(sq_set)
+                    if len(sq_set) == 1:
+                        possibility[loc_[0]][loc_[1]] = sq_set
+                        self.solving_flags.HAS_CERTAIN_POSSIBILITIES = True
+                        sq_list.append(loc_)
+        self.solving_flags.CERTAIN_POSSIBILITIES_LIST = self.solving_flags.CERTAIN_POSSIBILITIES_LIST + sq_list
+        return possibility
+
     def set_possibilities(self, data):
         possibilities = defaultdict(dict)
         for x in range(SQUARE):
@@ -92,6 +115,7 @@ class SudokuPuzzle:
                         self.solving_flags.CERTAIN_POSSIBILITIES_LIST.append((x,y))
         possibilities = self.find_certain_row(possibilities)
         possibilities = self.find_certain_col(possibilities)
+        possibilities = self.find_certain_sq(possibilities)
         return possibilities
 
     # SOLVE
