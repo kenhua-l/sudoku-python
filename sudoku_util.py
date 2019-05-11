@@ -1,8 +1,10 @@
 from collections import defaultdict
+import copy
 # SUDOKU DIMENSION
 WIDTH = 3
 SQUARE = 9
 NUMBERSET = {1,2,3,4,5,6,7,8,9}
+SUM = 45
 
 class Flags:
     def __init__(self):
@@ -12,14 +14,6 @@ class Flags:
         self.CERTAIN_ROW_LIST = []
 
 class SudokuPuzzle:
-	# in grid form where x is row, y is col
-	# column dictionary in row where column has set data
-	# eg.
-	# {
-	# 	0 : {
-	# 			0 : {1,2,3,4,5}
-	# 		}
-	# }
     def __init__(self, data):
         self.main_frame = data
         self.solving_frame = data
@@ -155,18 +149,14 @@ def puzzle_is_solved(puzzle):
         return False
     else:
         for x in range(9):
-            row_ = puzzle.get_row_numbers(x)
-            if find_missing(row_):
+            if sum(puzzle.get_row_numbers(x)) != SUM:
                 return False
         for y in range(9):
-            col_ = puzzle.get_col_numbers(y)
-            if find_missing(col_):
+            if sum(puzzle.get_col_numbers(y)) != SUM:
                 return False
         for o in range(9):
-            sq_ = puzzle.get_sq_numbers(o)
-            if find_missing(sq_):
+            if sum(puzzle.get_sq_numbers(o)) != SUM:
                 return False
-        print('SUDOKU SOLVED')
         return True
 
 def main():
