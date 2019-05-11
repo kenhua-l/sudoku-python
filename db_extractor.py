@@ -1,8 +1,10 @@
 EASY = ('Easy.opensudoku', 'easy.sudoku')
 MEDIUM = ('Medium.opensudoku', 'medium.sudoku')
+HARD = ('Hard.opensudoku', 'hard.sudoku')
+VERYHARD = ('VeryHard.opensudoku', 'veryhard.sudoku')
 def main():
-    w = open(EASY[1],"w+")
-    with open(EASY[0]) as f:
+    w = open(VERYHARD[1],"w+")
+    with open(VERYHARD[0]) as f:
         for line in f:
             read_data = line.strip()
             if read_data.startswith('<game'):
