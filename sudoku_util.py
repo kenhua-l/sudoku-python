@@ -170,24 +170,18 @@ def backtracking(frame): #recursive function
             temp = temp[:pos_] + str(val_) + temp[pos_ + 1:]
             puzzle_temp = SudokuPuzzle(temp)
             if not puzzle_temp.solving_flags.HAS_EMPTY_POSSIBILITY:
+                if has_certain_possibilities(puzzle_temp):
+                    while has_certain_possibilities(puzzle_temp):
+                        try:
+                            puzzle_temp.fill_up_certain_ones()
+                            if not has_certain_possibilities(puzzle_temp) and not puzzle_is_solved(puzzle_temp):
+                                puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame)
+                        except:
+                            break
+                else:
+                    puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame)
                 if puzzle_is_solved(puzzle_temp):
                     return puzzle_temp.solving_frame
-                else:
-                    if has_certain_possibilities(puzzle_temp):
-                        ite = 40
-                        while has_certain_possibilities(puzzle_temp) and ite > 0:
-                            # print('iteration', ite)
-                            try:
-                                puzzle_temp.fill_up_certain_ones()
-                                ite = ite - 1
-                                if not has_certain_possibilities(puzzle_temp) and not puzzle_is_solved(puzzle_temp):
-                                    puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame)
-                            except:
-                                ite = 0
-                    else:
-                        puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame)
-                    if puzzle_is_solved(puzzle_temp):
-                        return puzzle_temp.solving_frame
             else:
                 continue
         return frame
