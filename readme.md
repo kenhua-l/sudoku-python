@@ -10,3 +10,8 @@ If you wanna use, just write down the sudoku string (I made the puzzle into a st
 with the 0's representing empty cells) in the sudoku_reader and run it
 
 python3 sudoku_reader.py
+
+952 easy puzzles
+988 medium puzzles
+952 hard puzzles
+991 veryhard puzzles

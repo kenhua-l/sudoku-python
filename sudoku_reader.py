@@ -29,14 +29,13 @@ def main():
 				i = i + 1
 	print("%d/%d puzzles solved" %(win, i))
 
-def xmain():
-	example = "079400600600073400100000007090050700086204590002060040200000008007310004001007320"
-	example = "400500061300004700070090000940800007007000400100005029000050090001700003260009004"
+def nmain():
+	example = "009000200450090700020700009000140006090208010100075000600001090008020074005000300"
 	puzzle = convert_to_puzzle(example)
 
 	print_sudoku(puzzle.solving_frame)
 
-	safety = 3
+	safety = 2
 	while not sudoku_util.puzzle_is_solved(puzzle) and safety > 0:
 		if sudoku_util.has_certain_possibilities(puzzle):
 			ite = 20

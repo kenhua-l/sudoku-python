@@ -122,7 +122,7 @@ class SudokuPuzzle:
 
     # SOLVE
     def fill_uncertainly(self):
-        self.solving_frame = backtracking(self.solving_frame, 5)
+        self.solving_frame = backtracking(self.solving_frame)
 
     def fill_up_certain_ones(self):
         temp = self.solving_frame
@@ -155,10 +155,9 @@ def intersect_sets(horizontal_set, vertical_set, square_set):
 def has_certain_possibilities(puzzle):
     return puzzle.solving_flags.HAS_CERTAIN_POSSIBILITIES
 
-def backtracking(frame, safety): #recursive function
+def backtracking(frame): #recursive function
     puzzle = SudokuPuzzle(frame)
-    # print('safety', safety)
-    if puzzle_is_solved(puzzle) or safety <= 0:
+    if puzzle_is_solved(puzzle):
         return puzzle.solving_frame
     else:
         pos_ = frame.find('0')
@@ -170,24 +169,23 @@ def backtracking(frame, safety): #recursive function
         for val_ in possible_values:
             temp = temp[:pos_] + str(val_) + temp[pos_ + 1:]
             puzzle_temp = SudokuPuzzle(temp)
-            # print(temp)
             if not puzzle_temp.solving_flags.HAS_EMPTY_POSSIBILITY:
                 if puzzle_is_solved(puzzle_temp):
                     return puzzle_temp.solving_frame
                 else:
                     if has_certain_possibilities(puzzle_temp):
-                        ite = 30
+                        ite = 40
                         while has_certain_possibilities(puzzle_temp) and ite > 0:
                             # print('iteration', ite)
                             try:
                                 puzzle_temp.fill_up_certain_ones()
                                 ite = ite - 1
                                 if not has_certain_possibilities(puzzle_temp) and not puzzle_is_solved(puzzle_temp):
-                                    puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame, safety - 1)
+                                    puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame)
                             except:
                                 ite = 0
                     else:
-                        puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame, safety - 1)
+                        puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame)
                     if puzzle_is_solved(puzzle_temp):
                         return puzzle_temp.solving_frame
             else:
