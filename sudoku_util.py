@@ -10,8 +10,11 @@ class Flags:
     def __init__(self):
         self.HAS_CERTAIN_POSSIBILITIES = False
         self.CERTAIN_POSSIBILITIES_LIST = []
-        self.HAS_CERTAIN_ROW = False
-        self.CERTAIN_ROW_LIST = []
+
+    def __str__(self):
+        ret_str = "Has possibility: " + str(self.HAS_CERTAIN_POSSIBILITIES) + "\n"
+        ret_str = ret_str + "List: " + str(self.CERTAIN_POSSIBILITIES_LIST)
+        return ret_str
 
 class SudokuPuzzle:
     def __init__(self, data):
@@ -113,6 +116,9 @@ class SudokuPuzzle:
         return possibilities
 
     # SOLVE
+    def fill_uncertainly(self):
+        self.solving_frame = backtracking(self.solving_frame, 5)
+
     def fill_up_certain_ones(self):
         temp = self.solving_frame
         for x,y in self.solving_flags.CERTAIN_POSSIBILITIES_LIST:
@@ -142,6 +148,39 @@ def intersect_sets(horizontal_set, vertical_set, square_set):
 # SOLVE
 def has_certain_possibilities(puzzle):
     return puzzle.solving_flags.HAS_CERTAIN_POSSIBILITIES
+
+def backtracking(frame, safety): #recursive function
+    puzzle = SudokuPuzzle(frame)
+    if puzzle_is_solved(puzzle) and safety == 0:
+        return puzzle.solving_frame
+    else:
+        pos_ = frame.find('0')
+        r,c,s = get_cell_location(pos_)
+        possible_values = puzzle.possibilities[r][c]
+        temp = frame
+        for val_ in possible_values:
+            temp = temp[:pos_] + str(val_) + temp[pos_ + 1:]
+            try:
+                puzzle_temp = SudokuPuzzle(temp)
+                if puzzle_is_solved(puzzle_temp):
+                    return puzzle_temp.solving_frame
+                else:
+                    if has_certain_possibilities(puzzle_temp):
+                        ite = 20
+                        while has_certain_possibilities(puzzle_temp) and ite > 0:
+                            try:
+                                puzzle_temp.fill_up_certain_ones()
+                                ite = ite - 1
+                            except:
+                                ite = 0
+                    if puzzle_is_solved(puzzle_temp):
+                        return puzzle_temp.solving_frame
+                    else:
+                        puzzle_temp = backtracking(temp, safety - 1)
+            except:
+                continue
+
+        return temp
 
 # CHECK
 def puzzle_is_solved(puzzle):

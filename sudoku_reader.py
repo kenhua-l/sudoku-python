@@ -17,6 +17,8 @@ def main():
 						while(sudoku_util.has_certain_possibilities(puzzle) and ite > 0):
 							puzzle.fill_up_certain_ones()
 							ite = ite - 1
+					else:
+						puzzle.fill_uncertainly()
 					safety = safety - 1
 				print(i, end=' ')
 				if sudoku_util.puzzle_is_solved(puzzle):
@@ -27,33 +29,36 @@ def main():
 				i = i + 1
 	print("%d/%d puzzles solved" %(win, i))
 
-def not_main():
+def main():
 	# example = "093001600600000079470690000360000700700502001002000043000026037130000006006300150"
 	# example = "403072860701580300200106500000050410000000000037060000002807003004015207075620108"
 	# example = "0080090725002001000106000080005704600050009000430980008000060200060050047508006001"
 	example = "048001000700006100050900002000190403410637028309024000800009030001400006000500810"
 	# example = "602005140300000500000007208060080010200701004010040020706200000004000002021300405"
 	# example = "008000030700609080004070002100048029000902000820310005500030200090105003080000100"
-	example = "001209040400015203050003007060700028009000400780002030300100060607590002010604700"
-
+	# example = "001209040400015203050003007060700028009000400780002030300100060607590002010604700"
+	example = "382004500040000620790100008060740005070502090200038040400006073038000060007400852"
+	example = "004803090000970500890601400700035000065702340000160005007506014001047000050308700"
 	puzzle = convert_to_puzzle(example)
 
 	print_sudoku(puzzle.solving_frame)
 
 	safety = 5
-	while not sudoku_util.puzzle_is_solved(puzzle) and safety > 0:
+	while not sudoku_util.puzzle_is_solved(puzzle):
+		if safety > 0:
+			print('safety net', safety)
 		if sudoku_util.has_certain_possibilities(puzzle):
-			ite = 10
+			ite = 20
 			# print('strategy one')
 			while(sudoku_util.has_certain_possibilities(puzzle) and ite > 0):
 				puzzle.fill_up_certain_ones()
 				ite = ite - 1
 			print_sudoku(puzzle.solving_frame)
-		# else:
-		# 	print('strategy two')
-		# 	puzzle.fill_uncertain()
-		# 	print_sudoku(puzzle.solving_frame)
-		# print(safety)
+		else:
+			print('strategy two')
+			puzzle.fill_uncertainly()
+			print_sudoku(puzzle.solving_frame)
+		print(safety)
 		safety = safety - 1
 
 	if sudoku_util.puzzle_is_solved(puzzle):
