@@ -2,10 +2,10 @@ import sudoku_util
 from sudoku_util import SudokuPuzzle
 from time import sleep
 
-def not_main():
+def main():
 	i = 0
 	win = 0;
-	with open('hard.sudoku') as f:
+	with open('veryhard.sudoku') as f:
 		for line in f:
 			if not line == "":
 				puzzle = convert_to_puzzle(line)
@@ -29,7 +29,7 @@ def not_main():
 				i = i + 1
 	print("%d/%d puzzles solved" %(win, i))
 
-def main():
+def xmain():
 	example = "079400600600073400100000007090050700086204590002060040200000008007310004001007320"
 	example = "400500061300004700070090000940800007007000400100005029000050090001700003260009004"
 	puzzle = convert_to_puzzle(example)

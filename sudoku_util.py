@@ -182,17 +182,14 @@ def backtracking(frame, safety): #recursive function
                             try:
                                 puzzle_temp.fill_up_certain_ones()
                                 ite = ite - 1
+                                if not has_certain_possibilities(puzzle_temp) and not puzzle_is_solved(puzzle_temp):
+                                    puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame, safety - 1)
                             except:
                                 ite = 0
-                        try:
-                            puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame, safety - 1)
-                        except:
-                            pass
+                    else:
+                        puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame, safety - 1)
                     if puzzle_is_solved(puzzle_temp):
                         return puzzle_temp.solving_frame
-                    else:
-                        pass
-
             else:
                 continue
         return frame
