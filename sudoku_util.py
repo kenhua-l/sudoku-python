@@ -10,6 +10,7 @@ class Flags:
     def __init__(self):
         self.HAS_CERTAIN_POSSIBILITIES = False
         self.CERTAIN_POSSIBILITIES_LIST = []
+        self.HAS_EMPTY_POSSIBILITY = False
 
     def __str__(self):
         ret_str = "Has possibility: " + str(self.HAS_CERTAIN_POSSIBILITIES) + "\n"
@@ -107,12 +108,16 @@ class SudokuPuzzle:
                     r,c,s = self.get_row_numbers(r), self.get_col_numbers(c), self.get_sq_numbers(s)
                     r,c,s = find_missing(r), find_missing(c), find_missing(s)
                     possibilities[x][y] = intersect_sets(r, c, s)
-                    if len(possibilities[x][y]) == 1:
+                    # solving backtracking issue
+                    if len(possibilities[x][y]) == 0:
+                        self.solving_flags.HAS_EMPTY_POSSIBILITY = True
+                    elif len(possibilities[x][y]) == 1:
                         self.solving_flags.HAS_CERTAIN_POSSIBILITIES = True
                         self.solving_flags.CERTAIN_POSSIBILITIES_LIST.append((x,y))
-        possibilities = self.find_certain_row(possibilities)
-        possibilities = self.find_certain_col(possibilities)
-        possibilities = self.find_certain_sq(possibilities)
+        if not self.solving_flags.HAS_EMPTY_POSSIBILITY:
+            possibilities = self.find_certain_row(possibilities)
+            possibilities = self.find_certain_col(possibilities)
+            possibilities = self.find_certain_sq(possibilities)
         return possibilities
 
     # SOLVE
@@ -125,6 +130,7 @@ class SudokuPuzzle:
             val = str(self.possibilities[x][y].pop())
             temp = temp[:x * SQUARE + y] + val + temp[x * SQUARE + y + 1:]
         self.solving_flags.HAS_CERTAIN_POSSIBILITIES = False
+        self.solving_flags.HAS_EMPTY_POSSIBILITY = False
         self.solving_flags.CERTAIN_POSSIBILITIES_LIST.clear()
         self.solving_frame = temp
         self.possibilities = self.set_possibilities(self.solving_frame)
@@ -151,36 +157,38 @@ def has_certain_possibilities(puzzle):
 
 def backtracking(frame, safety): #recursive function
     puzzle = SudokuPuzzle(frame)
-    if puzzle_is_solved(puzzle) and safety == 0:
+    if puzzle_is_solved(puzzle) or safety == 0:
         return puzzle.solving_frame
     else:
         pos_ = frame.find('0')
+        if(pos_ < 0):
+            return frame
         r,c,s = get_cell_location(pos_)
         possible_values = puzzle.possibilities[r][c]
         temp = frame
         for val_ in possible_values:
             temp = temp[:pos_] + str(val_) + temp[pos_ + 1:]
-            try:
-                puzzle_temp = SudokuPuzzle(temp)
+            puzzle_temp = SudokuPuzzle(temp)
+            if not puzzle_temp.solving_flags.HAS_EMPTY_POSSIBILITY:
                 if puzzle_is_solved(puzzle_temp):
                     return puzzle_temp.solving_frame
                 else:
                     if has_certain_possibilities(puzzle_temp):
-                        ite = 20
+                        ite = 30
                         while has_certain_possibilities(puzzle_temp) and ite > 0:
                             try:
                                 puzzle_temp.fill_up_certain_ones()
                                 ite = ite - 1
+                                puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame, safety - 1)
                             except:
-                                ite = 0
+                                continue
                     if puzzle_is_solved(puzzle_temp):
                         return puzzle_temp.solving_frame
                     else:
-                        puzzle_temp = backtracking(temp, safety - 1)
-            except:
+                        continue
+            else:
                 continue
-
-        return temp
+        return frame
 
 # CHECK
 def puzzle_is_solved(puzzle):
