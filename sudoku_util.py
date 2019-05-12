@@ -157,7 +157,8 @@ def has_certain_possibilities(puzzle):
 
 def backtracking(frame, safety): #recursive function
     puzzle = SudokuPuzzle(frame)
-    if puzzle_is_solved(puzzle) or safety == 0:
+    # print('safety', safety)
+    if puzzle_is_solved(puzzle) or safety <= 0:
         return puzzle.solving_frame
     else:
         pos_ = frame.find('0')
@@ -169,6 +170,7 @@ def backtracking(frame, safety): #recursive function
         for val_ in possible_values:
             temp = temp[:pos_] + str(val_) + temp[pos_ + 1:]
             puzzle_temp = SudokuPuzzle(temp)
+            # print(temp)
             if not puzzle_temp.solving_flags.HAS_EMPTY_POSSIBILITY:
                 if puzzle_is_solved(puzzle_temp):
                     return puzzle_temp.solving_frame
@@ -176,16 +178,21 @@ def backtracking(frame, safety): #recursive function
                     if has_certain_possibilities(puzzle_temp):
                         ite = 30
                         while has_certain_possibilities(puzzle_temp) and ite > 0:
+                            # print('iteration', ite)
                             try:
                                 puzzle_temp.fill_up_certain_ones()
                                 ite = ite - 1
-                                puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame, safety - 1)
                             except:
-                                continue
+                                ite = 0
+                        try:
+                            puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame, safety - 1)
+                        except:
+                            pass
                     if puzzle_is_solved(puzzle_temp):
                         return puzzle_temp.solving_frame
                     else:
-                        continue
+                        pass
+
             else:
                 continue
         return frame
