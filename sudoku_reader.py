@@ -9,17 +9,8 @@ def main():
 		for line in f:
 			if not line == "":
 				puzzle = convert_to_puzzle(line)
+				puzzle.solve()
 
-				safety = 3
-				while not sudoku_util.puzzle_is_solved(puzzle) and safety > 0:
-					if sudoku_util.has_certain_possibilities(puzzle):
-						ite = 20
-						while(sudoku_util.has_certain_possibilities(puzzle) and ite > 0):
-							puzzle.fill_up_certain_ones()
-							ite = ite - 1
-					else:
-						puzzle.fill_uncertainly()
-					safety = safety - 1
 				print(i, end=' ')
 				if sudoku_util.puzzle_is_solved(puzzle):
 					print("SUKODU SOLVED")
@@ -29,25 +20,12 @@ def main():
 				i = i + 1
 	print("%d/%d puzzles solved" %(win, i))
 
-def nmain():
+def smain():
 	example = "009000200450090700020700009000140006090208010100075000600001090008020074005000300"
 	puzzle = convert_to_puzzle(example)
 
 	print_sudoku(puzzle.solving_frame)
-
-	safety = 2
-	while not sudoku_util.puzzle_is_solved(puzzle) and safety > 0:
-		if sudoku_util.has_certain_possibilities(puzzle):
-			ite = 20
-			while(sudoku_util.has_certain_possibilities(puzzle) and ite > 0):
-				puzzle.fill_up_certain_ones()
-				ite = ite - 1
-			print_sudoku(puzzle.solving_frame)
-		else:
-			puzzle.fill_uncertainly()
-			print_sudoku(puzzle.solving_frame)
-		print(safety)
-		safety = safety - 1
+	puzzle.solve()
 
 	if sudoku_util.puzzle_is_solved(puzzle):
 		print_sudoku(puzzle.solving_frame)

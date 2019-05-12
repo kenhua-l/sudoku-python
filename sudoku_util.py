@@ -135,6 +135,14 @@ class SudokuPuzzle:
         self.solving_frame = temp
         self.possibilities = self.set_possibilities(self.solving_frame)
 
+    def solve(self):
+        while not puzzle_is_solved(self):
+            if has_certain_possibilities(self):
+                while has_certain_possibilities(self):
+                    self.fill_up_certain_ones()
+            else:
+                self.fill_uncertainly()
+
 def get_cell_location(ordinal):
     # assume this is 9 x 9 sudoku
     # ordinal in terms of main_frame order
@@ -162,6 +170,7 @@ def backtracking(frame): #recursive function
     else:
         pos_ = frame.find('0')
         if(pos_ < 0):
+            # print('wrong pos_')
             return frame
         r,c,s = get_cell_location(pos_)
         possible_values = puzzle.possibilities[r][c]
@@ -169,21 +178,35 @@ def backtracking(frame): #recursive function
         for val_ in possible_values:
             temp = temp[:pos_] + str(val_) + temp[pos_ + 1:]
             puzzle_temp = SudokuPuzzle(temp)
+            # if puzzle_is_solved(puzzle_temp):
+                # print('in first else solve')
+                # return puzzle_temp.solving_frame
             if not puzzle_temp.solving_flags.HAS_EMPTY_POSSIBILITY:
                 if has_certain_possibilities(puzzle_temp):
                     while has_certain_possibilities(puzzle_temp):
                         try:
                             puzzle_temp.fill_up_certain_ones()
+                            # if not has_certain_possibilities(puzzle_temp) and not puzzle_is_solved(puzzle_temp):
+                                # puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame)
+                        except Exception as e:
+                            print('in except', e)
+                            break
+                        try:
                             if not has_certain_possibilities(puzzle_temp) and not puzzle_is_solved(puzzle_temp):
                                 puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame)
-                        except:
+                        except Exception as e:
+                            print('in except of backtrack', e)
                             break
                 else:
+                # if not has_certain_possibilities(puzzle_temp) and not puzzle_is_solved(puzzle_temp):
                     puzzle_temp.solving_frame = backtracking(puzzle_temp.solving_frame)
                 if puzzle_is_solved(puzzle_temp):
+                    # print('in second else solve')
                     return puzzle_temp.solving_frame
             else:
+                # print('to continue')
                 continue
+        # print('dummy return')
         return frame
 
 # CHECK
@@ -201,12 +224,3 @@ def puzzle_is_solved(puzzle):
             if sum(puzzle.get_sq_numbers(o)) != SUM:
                 return False
         return True
-
-def main():
-    # testing
-    # example = "093001600600000079470690000360000700700502001002000043000026037130000006006300150"
-    example = "403072860701580300200106500000050410000000000037060000002807003004015207075620108"
-    puzzle = SudokuPuzzle(example)
-    print(puzzle.possibilities)
-
-# main()
