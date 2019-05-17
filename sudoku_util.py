@@ -44,6 +44,9 @@ class SudokuPuzzle:
         return sq_
 
     # CHECK
+    def find_certain_cell(self, possibility):
+        return possibility
+
     def find_certain_row(self, possibility):
         row_list = []
         for x, row_ in possibility.items():
@@ -224,3 +227,50 @@ def puzzle_is_solved(puzzle):
             if sum(puzzle.get_sq_numbers(o)) != SUM:
                 return False
         return True
+
+# SETUP
+def get_row_numbers2(row, data):
+    row_ = set([int(i) for i in data[(row * SQUARE):(row * SQUARE) + SQUARE]])
+    row_.discard(0)
+    return row_
+
+def get_col_numbers2(col, data):
+    col_ = set([int(i) for i in data[col:SQUARE ** 2:SQUARE]])
+    col_.discard(0)
+    return col_
+
+def get_sq_numbers2(sq, data):
+    start = (int(sq/WIDTH) * WIDTH * SQUARE) + (sq % WIDTH) * WIDTH
+    sq_ = set([int(i) for i in data[start:start + WIDTH]])
+    sq_ = sq_.union(set([int(i) for i in data[start + SQUARE:start + SQUARE + WIDTH]]))
+    sq_ = sq_.union(set([int(i) for i in data[start + SQUARE * 2:start + SQUARE * 2 + WIDTH]]))
+    sq_.discard(0)
+    return sq_
+
+def set_all(data):
+    possibilities = defaultdict(dict)
+    for x in range(SQUARE):
+        for y in range(SQUARE):
+            if data[x * SQUARE + y] == '0':
+                r,c,s = get_cell_location(x * SQUARE + y)
+                r,c,s = get_row_numbers2(r, data), get_col_numbers2(c, data), get_sq_numbers2(s, data)
+                r,c,s = find_missing(r), find_missing(c), find_missing(s)
+                possibilities[x][y] = intersect_sets(r, c, s)
+    return possibilities
+
+def main():
+    example = "006000390409083006030560000040005009017000630600300080000028050300950104091000800"
+    example2 = "006000390409083006030560000040005009017000630600300080000028050300950104091000800"
+    puzzle = SudokuPuzzle(example)
+    puzzle2 = set_all(example)
+    print(puzzle.solving_flags)
+    for k,r in puzzle.possibilities.items():
+        print(k)
+        for c,v in r.items():
+            print("   ", c, v)
+        print()
+        if puzzle2[k]:
+            for c,v in puzzle2[k].items():
+                print("   ", c, v)
+
+main()

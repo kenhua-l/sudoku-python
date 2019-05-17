@@ -2,7 +2,7 @@ import sudoku_util
 from sudoku_util import SudokuPuzzle
 from time import sleep
 
-def main():
+def mmain():
 	i = 0
 	win = 0;
 	with open('veryhard.sudoku') as f:
@@ -20,7 +20,7 @@ def main():
 				i = i + 1
 	print("%d/%d puzzles solved" %(win, i))
 
-def smain():
+def main():
 	example = "009000200450090700020700009000140006090208010100075000600001090008020074005000300"
 	puzzle = convert_to_puzzle(example)
 
