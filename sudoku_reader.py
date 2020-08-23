@@ -21,8 +21,15 @@ def mmain():
 	print("%d/%d puzzles solved" %(win, i))
 
 def main():
-	example = "009000200450090700020700009000140006090208010100075000600001090008020074005000300"
+	example = "102539000900028513358600902830190625020305189519862437201003050483950201005200304"
 	puzzle = convert_to_puzzle(example)
+
+	print(puzzle.solving_flags)
+	for k,r in puzzle.possibilities.items():
+		print(k)
+		for c,v in r.items():
+			print("   ", c, v)
+		# print("row ", k, " ", puzzle.solving_frame[k * 9: k * 9 + 9])
 
 	print_sudoku(puzzle.solving_frame)
 	puzzle.solve()

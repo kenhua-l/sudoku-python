@@ -249,28 +249,48 @@ def get_sq_numbers2(sq, data):
 
 def set_all(data):
     possibilities = defaultdict(dict)
-    for x in range(SQUARE):
-        for y in range(SQUARE):
-            if data[x * SQUARE + y] == '0':
-                r,c,s = get_cell_location(x * SQUARE + y)
-                r,c,s = get_row_numbers2(r, data), get_col_numbers2(c, data), get_sq_numbers2(s, data)
-                r,c,s = find_missing(r), find_missing(c), find_missing(s)
-                possibilities[x][y] = intersect_sets(r, c, s)
-    return possibilities
+    has_certain = False
+    is_empty = False
+    certain_list = []
+    safety = 1
+    solving = data
+    while True and safety > 0:
+        for x in range(SQUARE):
+            for y in range(SQUARE):
+                if solving[x * SQUARE + y] == '0':
+                    r,c,s = get_cell_location(x * SQUARE + y)
+                    r,c,s = get_row_numbers2(r, solving), get_col_numbers2(c, solving), get_sq_numbers2(s, solving)
+                    r,c,s = find_missing(r), find_missing(c), find_missing(s)
+                    possibilities[x][y] = intersect_sets(r, c, s)
+                    if len(possibilities[x][y]) == 0:
+                        is_empty = True
+                    elif len(possibilities[x][y]) == 1:
+                        has_certain = True
+                        certain_list.append((x, y))
+        for x,y in certain_list:
+            val = str(possibilities[x][y].pop())
+            solving = solving[:x * SQUARE + y] + val + solving[x * SQUARE + y + 1:]
+        is_empty = False
+        has_certain = False
+        certain_list = []
+        safety = safety - 1
+    return solving, possibilities
 
 def main():
-    example = "006000390409083006030560000040005009017000630600300080000028050300950104091000800"
-    example2 = "006000390409083006030560000040005009017000630600300080000028050300950104091000800"
+    example = "060004000905000480040350000090070800102000904006010030000086040078000206000700050"
+    example2 = "241976538000003001083514260438162795062300814100840326000098053300600000895431672"
     puzzle = SudokuPuzzle(example)
-    puzzle2 = set_all(example)
+    # puzzle.fill_up_certain_ones()
+    solution, puzzle2 = set_all(example)
     print(puzzle.solving_flags)
     for k,r in puzzle.possibilities.items():
         print(k)
         for c,v in r.items():
             print("   ", c, v)
-        print()
+        print("row ", k, " ", puzzle.solving_frame[k * 9: k * 9 + 9])
+        print("row ", k, " ", solution[k * 9: k * 9 + 9])
         if puzzle2[k]:
             for c,v in puzzle2[k].items():
                 print("   ", c, v)
 
-main()
+# main()
